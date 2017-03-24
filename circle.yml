@@ -1,0 +1,14 @@
+machine:
+ python:
+   version: 3.6.0
+ node:
+   version: 0.10.22
+dependencies:
+ override:
+   - pip install -r requirements_devel.txt
+   - pip install coveralls
+test:
+ override:
+   - python manage.py test 
+ post:
+   - coveralls

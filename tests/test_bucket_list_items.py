@@ -6,10 +6,14 @@ from app import db
 from tests.base import BaseTestCase, login_user
 
 class BucketListItemTestCase(BaseTestCase):
-    """class for the test case BucketListItemAPI"""
+    """
+    class for the test case BucketListItemAPI
+    """
 
     def create_bucketlist(self):
-        """fxn that creates a bucketlist"""
+        """
+        fxn that creates a bucketlist
+        """
 
         url = 'api/v1/bucketlist/'
         response = self.client.post(url, data=json.dumps(dict(name='test')),\
@@ -17,7 +21,9 @@ class BucketListItemTestCase(BaseTestCase):
         return response
 
     def test_create_bucketlist_item(self):
-        """" tests fxn that creates bucketlist"""
+        """
+        tests fxn that creates bucketlist
+        """
 
         response = self.create_bucketlist()
         data = json.loads(response.data.decode())
@@ -29,7 +35,9 @@ class BucketListItemTestCase(BaseTestCase):
         self.assertTrue(data['message'] == 'item successfully added')
 
     def test_create_existing_item(self):
-        """ tests fxn create if it can add an existing item"""
+        """
+         tests fxn create if it can add an existing item
+        """
 
         response = self.create_bucketlist()
         data = json.loads(response.data.decode())
@@ -45,7 +53,9 @@ class BucketListItemTestCase(BaseTestCase):
         self.assertTrue(data['message'] == 'item already exists')
 
     def test_update_item(self):
-        """test fxn  to update a bucketlist item"""
+        """
+        test fxn  to update a bucketlist item
+        """
 
         response = self.create_bucketlist()
         data = json.loads(response.data.decode())
@@ -62,7 +72,9 @@ class BucketListItemTestCase(BaseTestCase):
         self.assertTrue(data['message'] == 'bucket list item is updated')
 
     def test_update_non_existant_item(self):
-        """ test fxn update if it updates non existant bucketlist item"""
+        """
+         test fxn update if it updates non existant bucketlist item
+        """
 
         response = self.create_bucketlist()
         data = json.loads(response.data.decode())
@@ -79,6 +91,10 @@ class BucketListItemTestCase(BaseTestCase):
         self.assertTrue(data['message'] == 'bucket list item is updated')
 
     def test_delete_item(self):
+        """
+        test  delete bucketlist item
+        """
+        
         response = self.create_bucketlist()
         data = json.loads(response.data.decode())
         self.assertTrue(data['message'] == 'bucket list created successfully')
@@ -93,7 +109,9 @@ class BucketListItemTestCase(BaseTestCase):
         self.assertTrue(data['message'] == 'bucket list item deleted')
 
     def test_delete_non_existing_item(self):
-        """test if can delete a non existant bucket list item"""
+        """
+        test if can delete a non existant bucket list item
+        """
 
         response = self.create_bucketlist()
         data = json.loads(response.data.decode())

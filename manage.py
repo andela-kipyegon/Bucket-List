@@ -11,7 +11,7 @@ COV = coverage.coverage(
     branch=True,
 
     omit=[
-        '*/*virtualenvs/*',
+        '*/.virtualenvs/*',
         'bucketlist/*',
         'tests/*',
         'config.py',

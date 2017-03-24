@@ -2,14 +2,8 @@ import os
 import unittest
 import coverage
 
-from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
-
-from app import app, db
-
 COV = coverage.coverage(
     branch=True,
-
     omit=[
         '*/*virtualenvs/*',
         'bucketlist/*',
@@ -19,6 +13,11 @@ COV = coverage.coverage(
     ]
 )
 COV.start()
+
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
+
+from app import app, db
 
 app.config.from_object(os.environ['APP_SETTINGS'])
 

@@ -57,8 +57,10 @@ class BaseTestCase(TestCase):
               }
 
     def tearDown(self):
-        """ removes all tables and removes test db
         """
+         removes all tables and removes test db
+        """
+        
         db.session.remove()
         db.drop_all()
         os.remove('test.db')

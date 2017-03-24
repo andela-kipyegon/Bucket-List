@@ -7,6 +7,6 @@ dependencies:
    - pip install codecov
 test:
  override:
-   - python manage.py cov 
+   - coverage run tests/
  post:
    - codecov

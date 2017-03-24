@@ -5,8 +5,10 @@ dependencies:
  override:
    - pip install -r requirements.txt
    - pip install coveralls
+   - pip install codecov
 test:
  override:
    - python manage.py cov 
  post:
    - coveralls
+   - codecov

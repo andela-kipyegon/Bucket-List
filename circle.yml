@@ -7,6 +7,6 @@ dependencies:
    - pip install coveralls
 test:
  override:
-   - python manage.py test 
+   - python manage.py cov 
  post:
    - coveralls

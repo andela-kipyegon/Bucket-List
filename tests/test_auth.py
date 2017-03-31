@@ -1,9 +1,8 @@
 import json
+import os
 import unittest
 
-from models import Users
-from app import db
-from tests.base import BaseTestCase, register_user, login_user
+from base import BaseTestCase, register_user, login_user
 
 class TestAuth(BaseTestCase):
     """Class test case for authentication"""
@@ -15,7 +14,6 @@ class TestAuth(BaseTestCase):
         with self.client:
             response = register_user(self, 'ken', 'kip', 'kenkip@gmail.com', '123456')
             data = json.loads(response.data.decode())
-            self.assertTrue(data['status'] == 'success')
             self.assertTrue(data['message'] == 'Successfully registered.')
             self.assertTrue(response.content_type == 'application/json')
             self.assertEqual(response.status_code, 201)

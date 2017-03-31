@@ -33,7 +33,7 @@ class BaseTestCase(TestCase):
         """configure app test settings"""
 
         app.config.from_object('config.TestingConfig')
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/test_bucket_list'
         return app
 
     def setUp(self):
@@ -60,7 +60,6 @@ class BaseTestCase(TestCase):
         """
          removes all tables and removes test db
         """
-        
+
         db.session.remove()
         db.drop_all()
-        os.remove('test.db')

@@ -5,7 +5,8 @@ from flask import g, Blueprint, request
 from flask_restful import Api, Resource, reqparse, fields, marshal
 from flask_httpauth import HTTPTokenAuth
 from models import BucketList, BucketListItem, Users
-from app import db, app
+from app import app, db
+
 auth = HTTPTokenAuth(scheme='Token')
 
 bucket_list_item_field = {'bucketlist_item_id': fields.Integer,
@@ -51,6 +52,7 @@ class BucketListAPI(Resource):
 
     def get(self, id=None):
         """ fxn for get request of bucketlist or bucketlists """
+
         if id:
             user_id = g.user.id
             bucket_list = BucketList.query.filter_by(id=id, created_by=user_id).all()
@@ -80,12 +82,12 @@ class BucketListAPI(Resource):
 
             if bucket_list:
                 if bucket_list.has_prev:
-                    url_next = request.path + '?page='+ str(page + 1) + '&limit=' + str(per_page)
+                    url_next = request.url + '?page='+ str(page + 1) + '&limit=' + str(per_page)
                 else:
                     url_next = 'Null'
 
                 if bucket_list.has_next:
-                    url_prev = request.path + '?page='+ str(page - 1) + '&limit=' + str(per_page)
+                    url_prev = request.url + '?page='+ str(page - 1) + '&limit=' + str(per_page)
                 else:
                     url_prev = 'Null'
 
@@ -106,12 +108,13 @@ class BucketListAPI(Resource):
         bucket_list = BucketList.query.filter_by(name=name).first()
 
         if bucket_list:
-            return {'message':'bucketlist already exists'}, 202
+            return {'message':'bucketlist {0} already exists'.format(name)}, 202
 
         new_bucket_list = BucketList(name=name, created_by=g.user.id)
         db.session.add(new_bucket_list)
         db.session.commit()
-        return {'message':'bucket list created successfully'}, 200
+
+        return marshal(new_bucket_list, bucket_list_field), 201
 
     def put(self, id):
         """ updates the bucketlist item of a specific id"""
@@ -126,7 +129,8 @@ class BucketListAPI(Resource):
 
         bucket_list.name = name
         db.session.commit()
-        return {'message':'bucket list updated successfully'}, 200
+
+        return marshal(bucket_list, bucket_list_field), 200
 
     def delete(self, id):
         """ deletes bucketlist item of a particular id """
@@ -136,7 +140,8 @@ class BucketListAPI(Resource):
         if bucket_list:
             db.session.delete(bucket_list)
             db.session.commit()
-            return {'message':'bucket list deleted succesfully'}, 200
+
+            return {'message':'bucket list {0} deleted successfully'.format(bucket_list.name)}, 200
 
         return {'message':'bucket list does not exist'}, 404
 
@@ -147,15 +152,13 @@ class BucketListItemAPI(Resource):
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('item_name', type=str, required=True,
-                                   help='No item name provided',
-                                   location='json')
-
         super(BucketListItemAPI, self).__init__()
 
     def post(self, bucketlist_id):
         """ creates a new bucketlist item"""
-
+        self.reqparse.add_argument('item_name', type=str, required=True,
+                                   help='No item name provided',
+                                   location='json')
         args = self.reqparse.parse_args()
         name = args['item_name']
         bucket_list = BucketList.query.filter_by(id=bucketlist_id).first()
@@ -174,17 +177,22 @@ class BucketListItemAPI(Resource):
                     bucketlist_item_id=last_item_id + 1)
                 db.session.add(bucket_list_item)
                 db.session.commit()
-                return {'message':'item successfully added'}, 201
+                return marshal(bucket_list_item, bucket_list_item_field), 201
             except:
                 return {'message':'item already exists'}, 202
 
         return {'error':'bucket list cannot be found'}, 404
 
     def put(self, bucketlist_id, bucketlist_item_id):
-        """ updates a particular bucketlist item of  a particular id"""
+        """
+        updates a particular bucketlist item of  a particular id
+        """
 
         self.reqparse.add_argument('done', type=bool,
                                    help='No done argument provided',
+                                   location='json')
+        self.reqparse.add_argument('item_name', type=str,
+                                   help='No item name provided',
                                    location='json')
         args = self.reqparse.parse_args()
         name = args['item_name']
@@ -201,7 +209,7 @@ class BucketListItemAPI(Resource):
                 if done:
                     bucket_list_item.done = True
                 db.session.commit()
-                return{'message':'bucket list item is updated'}, 200
+                return marshal(bucket_list_item, bucket_list_item_field), 200
 
             return {'error':'bucket list item does not exist'}, 202
 

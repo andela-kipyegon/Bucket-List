@@ -1,5 +1,5 @@
 
-from flask import Flask, abort, Blueprint
+from flask import Flask, abort, Blueprint, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import reqparse, Resource, Api, inputs
 from app import db
@@ -61,7 +61,7 @@ class RegisterAPI(Resource):
                     'status': 'fail' + str(e),
                     'message': 'Some error occurred. Please try again.'
                 }
-                return response, 401
+                return response, 500
         else:
             response = {
                 'status': 'fail',
@@ -75,7 +75,9 @@ class LoginAPI(Resource):
     """Login Resource"""
 
     def __init__(self):
-        """ constructor for  LoginAPI """
+        """
+        constructor for  LoginAPI
+        """
 
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('email', type=str, default="",
@@ -84,7 +86,9 @@ class LoginAPI(Resource):
                                    location='json')
 
     def post(self):
-        """" fxn to allow Login into the API"""
+        """"
+         fxn to allow Login into the API
+        """
 
         args = self.reqparse.parse_args()
         try:
@@ -95,6 +99,8 @@ class LoginAPI(Resource):
                 response = {
                     'status': 'success',
                     'message': 'Successfully logged in.',
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
                     'auth_token': auth_token.decode()
                 }
                 return response, 200
@@ -110,7 +116,46 @@ class LoginAPI(Resource):
                 'status': 'fail',
                 'message': 'Try again'
             }
-            return response, 50
+            return response, 500
 
+class UserAPI(Resource):
+    "gets the user status"
+
+    def get(self):
+        """
+        gets the status of the currently logged in user
+        """
+        import pdb; pdb.set_trace()
+        auth_header = request.headers.get('Authorization')
+
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+
+        if auth_token:
+            user = Users.verify_auth_token(auth_token)
+
+            if user:
+                response = {
+                    'status': 'success',
+                    'data': {
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                    }
+                }
+                return response, 200
+            response = {
+                'status': 'fail',
+                'message': 'logged out'
+            }
+            return response, 401
+        response = {
+            'status': 'fail',
+            'message': 'please provide the token'
+            }
+        return response, 401
+
+api_auth.add_resource(UserAPI, '/auth/status', endpoint='user')
 api_auth.add_resource(RegisterAPI, '/auth/register', endpoint='register')
 api_auth.add_resource(LoginAPI, '/auth/login', endpoint='login')

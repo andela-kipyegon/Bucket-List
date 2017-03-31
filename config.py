@@ -18,7 +18,7 @@ class ProductionConfig(Config):
 
 
 class StagingConfig(Config):
-    """" Config class Staging  """
+    """ Config class Staging  """
 
     DEVELOPMENT = True
     DEBUG = True

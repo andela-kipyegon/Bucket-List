@@ -4,6 +4,7 @@ import json
 from flask_testing import TestCase
 from app import db, app
 from models import Users, BucketList, BucketListItem
+from config import basedir
 
 def register_user(self, first_name, last_name, email, password):
     return self.client.post(
@@ -33,7 +34,7 @@ class BaseTestCase(TestCase):
         """configure app test settings"""
 
         app.config.from_object('config.TestingConfig')
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/test_bucket_list'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_bucket_list.db'
         return app
 
     def setUp(self):
@@ -63,3 +64,4 @@ class BaseTestCase(TestCase):
 
         db.session.remove()
         db.drop_all()
+        os.remove(os.path.join(basedir + '/test_bucket_list.db'))

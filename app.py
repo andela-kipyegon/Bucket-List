@@ -1,7 +1,9 @@
+import os
+
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import os
+from flask_cors import CORS, cross_origin
 
 
 app = Flask(__name__)
@@ -10,6 +12,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.url_map.strict_slashes = False
 db = SQLAlchemy(app)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 from resources.users import auth_blueprint
 app.register_blueprint(auth_blueprint, url_prefix='{prefix}/v{version}'.format(

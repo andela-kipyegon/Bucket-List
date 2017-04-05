@@ -25,10 +25,7 @@ class BucketListItemTestCase(BaseTestCase):
         tests fxn that creates bucketlist
         """
 
-        response = self.create_bucketlist()
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'test')
-
+        self.create_bucketlist()
         url = 'api/v1/bucketlist/1/bucketlistitem'
         response = self.client.post(url, data=json.dumps(dict(item_name='mock')),\
                                                 headers=self.set_header())
@@ -40,15 +37,10 @@ class BucketListItemTestCase(BaseTestCase):
          tests fxn create if it can add an existing item
         """
 
-        response = self.create_bucketlist()
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'test')
-
+        self.create_bucketlist()
         url = 'api/v1/bucketlist/1/bucketlistitem'
-        response = self.client.post(url, data=json.dumps(dict(item_name='mock')),\
+        self.client.post(url, data=json.dumps(dict(item_name='mock')),\
                                                 headers=self.set_header())
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'mock')
         response = self.client.post(url, data=json.dumps(dict(item_name='mock')),\
                                                 headers=self.set_header())
         data = json.loads(response.data.decode())
@@ -59,14 +51,10 @@ class BucketListItemTestCase(BaseTestCase):
         test fxn  to update a bucketlist item
         """
 
-        response = self.create_bucketlist()
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'test')
+        self.create_bucketlist()
         url = 'api/v1/bucketlist/1/bucketlistitem'
-        response = self.client.post(url, data=json.dumps(dict(item_name='mocking')),\
+        self.client.post(url, data=json.dumps(dict(item_name='mocking')),\
                                                 headers=self.set_header())
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'mocking')
         url = 'api/v1/bucketlist/1/bucketlistitem/1'
         response = self.client.put(url, data=json.dumps(dict(item_name='functional testing')),\
                                                 headers=self.set_header())
@@ -78,10 +66,7 @@ class BucketListItemTestCase(BaseTestCase):
          test fxn update if it updates non existant bucketlist item
         """
 
-        response = self.create_bucketlist()
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'test')
-
+        self.create_bucketlist()
         url = 'api/v1/bucketlist/1/bucketlistitem/1'
         response = self.client.put(url, data=json.dumps(dict(item_name='functional testing')),\
                                                 headers=self.set_header())
@@ -93,16 +78,10 @@ class BucketListItemTestCase(BaseTestCase):
         test  delete bucketlist item
         """
 
-        response = self.create_bucketlist()
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'test')
-
+        self.create_bucketlist()
         url = 'api/v1/bucketlist/1/bucketlistitem'
-        response = self.client.post(url, data=json.dumps(dict(item_name='mocking')),\
+        self.client.post(url, data=json.dumps(dict(item_name='mocking')),\
                                                 headers=self.set_header())
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'mocking')
-
         url = 'api/v1/bucketlist/1/bucketlistitem/1'
         response = self.client.delete(url, headers=self.set_header())
         data = json.loads(response.data.decode())
@@ -113,15 +92,10 @@ class BucketListItemTestCase(BaseTestCase):
         test if can delete a non existant bucket list item
         """
 
-        response = self.create_bucketlist()
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'test')
-
+        self.create_bucketlist()
         url = 'api/v1/bucketlist/1/bucketlistitem'
-        response = self.client.post(url, data=json.dumps(dict(item_name='mocking')),\
+        self.client.post(url, data=json.dumps(dict(item_name='mocking')),\
                                                 headers=self.set_header())
-        data = json.loads(response.data.decode())
-        self.assertTrue(data['name'] == 'mocking')
 
         url = 'api/v1/bucketlist/1/bucketlistitem/2'
         response = self.client.delete(url, headers=self.set_header())

@@ -1,7 +1,8 @@
 import os
 import datetime
 from app import app, db
-from flask import Flask, abort, request, jsonify, g, url_for
+
+from flask import Flask, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPTokenAuth
 from passlib.apps import custom_app_context as pwd_context
@@ -74,7 +75,7 @@ class BucketListItem(db.Model):
     __tablename__ = "bucketlistitems"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(80), nullable=False)
     bucketlist_id = db.Column(db.Integer, db.ForeignKey("bucketlist.id", ondelete='CASCADE'), nullable=False)
     bucketlist_item_id = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)

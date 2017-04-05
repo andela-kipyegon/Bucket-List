@@ -43,10 +43,12 @@ class RegisterAPI(Resource):
                     email=args['email'],
                     password=args['password']
                 )
+
                 # insert the user
                 user.hash_password(args['password'])
                 db.session.add(user)
                 db.session.commit()
+
                 # generate the auth token
                 auth_token = user.generate_auth_token()
                 response = {
@@ -94,6 +96,7 @@ class LoginAPI(Resource):
         try:
             user = Users.query.filter_by(email=args['email']).first()
 
+            # verifies user and password
             if user and user.verify_password(args['password']):
                 auth_token = user.generate_auth_token()
                 response = {
@@ -125,7 +128,8 @@ class UserAPI(Resource):
         """
         gets the status of the currently logged in user
         """
-        import pdb; pdb.set_trace()
+
+        # gets header
         auth_header = request.headers.get('Authorization')
 
         if auth_header:
@@ -133,6 +137,7 @@ class UserAPI(Resource):
         else:
             auth_token = ''
 
+        # verify token
         if auth_token:
             user = Users.verify_auth_token(auth_token)
 

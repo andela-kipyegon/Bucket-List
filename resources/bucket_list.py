@@ -22,7 +22,7 @@ bucket_list_field = { 'id': fields.Integer,
                       'created_at': fields.DateTime(dt_format='rfc822'),
                       'updated_at': fields.DateTime(dt_format='rfc822'),
                       'created_by': fields.String,
-                      'uri':fields.Url('bucket_list.bucket'),
+                      'uri':fields.Url('bucket_list.bucketlist'),
                     }
 
 bucket_list_blueprint = Blueprint('bucket_list', __name__)
@@ -31,6 +31,7 @@ api_bucket_list = Api(bucket_list_blueprint)
 @auth.verify_token
 def verify_token(token):
     """"token authentication"""
+
     # authenticate by token
     user = Users.verify_auth_token(token)
     if not user:
@@ -72,32 +73,34 @@ class BucketListAPI(Resource):
             per_page = args['per_page']
             user_id = g.user.id
 
+            # search if parameter is given
             if search:
-                bucket_list = BucketList.query.filter(BucketList.created_by == user_id,\
-                                BucketList.name.like('%' + search + '%')).\
-                                paginate(page, per_page, False)
+                bucket_list = (BucketList.query.filter(BucketList.created_by == user_id,
+                                                       BucketList.name.like('%' + search + '%')).
+                               paginate(page, per_page, False))
             else:
                 bucket_list = BucketList.query.filter_by(created_by=user_id).\
                               paginate(page, per_page, False)
 
-            if bucket_list:
-                if bucket_list.has_prev:
-                    url_next = request.url + '?page='+ str(page + 1) + '&limit=' + str(per_page)
-                else:
-                    url_next = 'Null'
-
-                if bucket_list.has_next:
-                    url_prev = request.url + '?page='+ str(page - 1) + '&limit=' + str(per_page)
-                else:
-                    url_prev = 'Null'
-
-                return {'meta':{'next_page':url_next,
-                                'previous_page':url_prev,
-                                'total_pages': bucket_list.pages},
-                        'bucketlist':marshal(bucket_list.items, bucket_list_field)}, 200
-
-            else:
+            # bucket list is found
+            if not bucket_list:
                 return {'message': 'no bucket_list available'}, 200
+
+            if bucket_list.has_prev:
+                url_next = request.url + '?page='+ str(page + 1) + '&limit=' + str(per_page)
+            else:
+                url_next = 'Null'
+
+            if bucket_list.has_next:
+                url_prev = request.url + '?page='+ str(page - 1) + '&limit=' + str(per_page)
+            else:
+                url_prev = 'Null'
+
+            return {'meta':{'next_page':url_next,
+                            'previous_page':url_prev,
+                            'total_pages': bucket_list.pages},
+                    'bucketlist':marshal(bucket_list.items, bucket_list_field)}, 200
+
 
     def post(self):
         """ Adds a bucketlist """
@@ -105,7 +108,7 @@ class BucketListAPI(Resource):
         args = self.reqparse.parse_args()
         name = args['name']
 
-        bucket_list = BucketList.query.filter_by(name=name).first()
+        bucket_list = BucketList.query.filter_by(name=name, created_by=g.user.id).first()
 
         if bucket_list:
             return {'message':'bucketlist {0} already exists'.format(name)}, 202
@@ -124,7 +127,7 @@ class BucketListAPI(Resource):
 
         bucket_list = BucketList.query.filter_by(id=id, created_by=g.user.id).first()
 
-        if bucket_list is None:
+        if not bucket_list:
             return {'error':'bucketlist does not exists'}, 404
 
         bucket_list.name = name
@@ -156,30 +159,35 @@ class BucketListItemAPI(Resource):
 
     def post(self, bucketlist_id):
         """ creates a new bucketlist item"""
+
         self.reqparse.add_argument('item_name', type=str, required=True,
                                    help='No item name provided',
                                    location='json')
         args = self.reqparse.parse_args()
         name = args['item_name']
-        bucket_list = BucketList.query.filter_by(id=bucketlist_id).first()
+        bucket_list = BucketList.query.filter_by(id=bucketlist_id, created_by=g.user.id).first()
 
         if bucket_list:
-            bucket_list_item_last = BucketListItem.query.filter_by(bucketlist_id=bucketlist_id)\
-                                   .order_by(db.desc(BucketListItem.bucketlist_item_id))
+            bucket_list_item = (BucketListItem.query.filter_by(
+                bucketlist_id=bucketlist_id, name=name)).first()
+
+            if bucket_list_item:
+                return {'message':'item already exists'}, 202
+
+            bucket_list_item_last = (BucketListItem.query.filter_by(bucketlist_id=bucketlist_id)
+                                     .order_by(db.desc(BucketListItem.bucketlist_item_id)))
 
             try:
                 last_item_id = bucket_list_item_last[0].bucketlist_item_id
             except IndexError:
                 last_item_id = 0
 
-            try:
-                bucket_list_item = BucketListItem(bucketlist_id=bucketlist_id, name=name,\
-                    bucketlist_item_id=last_item_id + 1)
-                db.session.add(bucket_list_item)
-                db.session.commit()
-                return marshal(bucket_list_item, bucket_list_item_field), 201
-            except:
-                return {'message':'item already exists'}, 202
+
+            bucket_list_item = BucketListItem(bucketlist_id=bucketlist_id, name=name,\
+                bucketlist_item_id=last_item_id + 1)
+            db.session.add(bucket_list_item)
+            db.session.commit()
+            return marshal(bucket_list_item, bucket_list_item_field), 201
 
         return {'error':'bucket list cannot be found'}, 404
 
@@ -200,20 +208,24 @@ class BucketListItemAPI(Resource):
 
         bucket_list = BucketList.query.filter_by(id=bucketlist_id, created_by=g.user.id).first()
 
-        if bucket_list:
-            bucket_list_item = BucketListItem.query.\
-                                     filter_by(bucketlist_item_id=bucketlist_item_id).first()
-            if bucket_list_item:
-                if name:
-                    bucket_list_item.name = name
-                if done:
-                    bucket_list_item.done = True
-                db.session.commit()
-                return marshal(bucket_list_item, bucket_list_item_field), 200
+        if not bucket_list:
+            return {'error':'bucket list does not exist'}, 404
 
-            return {'error':'bucket list item does not exist'}, 202
+        bucket_list_item = BucketListItem.query.\
+                                    filter_by(bucketlist_item_id=bucketlist_item_id,\
+                                      bucketlist_id=bucketlist_id).first()
 
-        return {'error':'bucket list does not exist'}, 202
+        if not bucket_list_item:
+            return {'error':'bucket list item does not exist'}, 404
+
+        if name:
+            bucket_list_item.name = name
+
+        if done:
+            bucket_list_item.done = done
+
+        db.session.commit()
+        return marshal(bucket_list_item, bucket_list_item_field), 200
 
     def delete(self, bucketlist_id, bucketlist_item_id):
         """ deletes a particular bucket list item"""
@@ -221,25 +233,25 @@ class BucketListItemAPI(Resource):
         bucket_list = BucketList.query.filter_by(id=bucketlist_id,\
                                                 created_by=g.user.id).first()
 
-        if bucket_list:
-            bucket_list_item = BucketListItem.query.filter_by(id=bucketlist_item_id).first()
+        if not bucket_list:
+            return {'message':'bucket list does not exist'}, 404
 
-            if bucket_list_item:
-                db.session.delete(bucket_list_item)
-                db.session.commit()
-                return {'message':'bucket list item deleted'}, 200
+        bucket_list_item = BucketListItem.query.filter_by(id=bucketlist_item_id).first()
 
+        if not bucket_list_item:
             return {'message':'bucket list item does not exist'}, 404
 
-        return {'message':'bucket list does not exist'}, 404
+        db.session.delete(bucket_list_item)
+        db.session.commit()
+        return {'message':'bucket list item deleted'}, 200
 
 
 
 api_bucket_list.add_resource(BucketListItemAPI, '/bucketlist/<int:bucketlist_id>/bucketlistitem/',\
                                                              endpoint='create_bucketlistitem')
 api_bucket_list.add_resource(BucketListItemAPI,\
-                            '/bucketlist/<int:bucketlist_id>/bucketlistitem/<int:bucketlist_item_id>/',
+                            '/bucketlist/<int:bucketlist_id>/bucketlistitem/'+
+                             '<int:bucketlist_item_id>/',
                              endpoint='bucketlistitem')
-api_bucket_list.add_resource(BucketListAPI, '/bucketlist/', endpoint='bucketlists')
-api_bucket_list.add_resource(BucketListAPI, '/bucketlist/<int:id>',\
-                                                            endpoint='bucket')
+(api_bucket_list.add_resource(BucketListAPI, '/bucketlist/',
+                              '/bucketlist/<int:id>', endpoint='bucketlist'))

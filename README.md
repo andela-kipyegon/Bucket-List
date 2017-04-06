@@ -6,6 +6,23 @@
 # Bucket-List
 It is a list of all the goals you want to achieve, dreams you want to fulfill and life experiences you desire to experience before you die.
 
+All Endpoints:
+
+|Method | Endpoint | Usage |
+| ---- | ---- | --------------- |
+|POST| `/api/v1/auth/register` |  Register a user. |
+|POST| `/api/v1/auth/login` | Login user.|
+|POST| `/api/v1/bucketlists/` | Create a new bucket list. |
+|GET| `/api/v1/bucketlists/` | Retrieve all the created bucket lists. |
+|GET| `/api/v1/bucketlists/<bucket_id>` | Get a single bucket list. |
+|PUT| `/api/v1/bucketlists/<bucket_id>` | Update a single bucket list. |
+|DELETE| `/api/v1/bucketlists/<bucket_id>` | Delete single bucket list. |
+|POST| `/api/v1/bucketlists/<bucket_id>/items `| Add a new item to this bucket list. |
+|PUT|`/api/v1/bucketlists/<bucket_id>/items/<item_id>` | Update this bucket list. |
+|DELETE|`/api/v1/bucketlists/<bucket_id>/items/<item_id>` | Delete this single bucket list. |
+|GET| `/api/v1/bucketlists?per_page=10&page=1` | Pagination to get 10 bucket list records.|
+|GET| `/api/v1/bucketlists?q=a bucket` | Search for bucket lists with name like a bucket. |
+
 **Login User**
 ----
   Returns json data about a single user.

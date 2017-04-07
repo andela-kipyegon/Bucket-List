@@ -4,9 +4,33 @@
 [![Coverage Status](https://coveralls.io/repos/github/andela-kipyegon/Bucket-List/badge.svg?branch=develop)](https://coveralls.io/github/andela-kipyegon/Bucket-List?branch=develop)
 
 # Bucket-List
+
 It is a list of all the goals you want to achieve, dreams you want to fulfill and life experiences you desire to experience before you die.
 
-All Endpoints:
+# Installation
+
+Clone the project on github: git@github.com:andela-kipyegon/BucketList.git
+
+Create a virtual environment and start the virtual environment
+
+**Install the requirments:**
+
+``` pip install -r requirements.txt ```
+
+**Setup Database:**
+
+Install postgres and create database bucket_list
+
+**Run the Migrations**:
+  ```
+    python manage.py db init
+    python manage.py db migrate
+    python manage.py db upgrade
+    python manage.py runserver
+  ```
+
+
+# All Endpoints:
 
 |Method | Endpoint | Usage |
 | ---- | ---- | --------------- |
@@ -17,7 +41,7 @@ All Endpoints:
 |GET| `/api/v1/bucketlists/<bucket_id>` | Get a single bucket list. |
 |PUT| `/api/v1/bucketlists/<bucket_id>` | Update a single bucket list. |
 |DELETE| `/api/v1/bucketlists/<bucket_id>` | Delete single bucket list. |
-|POST| `/api/v1/bucketlists/<bucket_id>/items `| Add a new item to this bucket list. |
+|POST| `/api/v1/bucketlists/<bucket_id>/items` | Add a new item to this bucket list. |
 |PUT|`/api/v1/bucketlists/<bucket_id>/items/<item_id>` | Update this bucket list. |
 |DELETE|`/api/v1/bucketlists/<bucket_id>/items/<item_id>` | Delete this single bucket list. |
 |GET| `/api/v1/bucketlists?per_page=10&page=1` | Pagination to get 10 bucket list records.|

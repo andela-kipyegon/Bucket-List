@@ -7,6 +7,7 @@ from models import Users, BucketList, BucketListItem
 from config import basedir
 
 def register_user(self, first_name, last_name, email, password):
+
     return self.client.post(
         'api/v1/auth/register',
         data=json.dumps(dict(
@@ -41,10 +42,6 @@ class BaseTestCase(TestCase):
         """setup resources for the test"""
         db.create_all()
         register_user(self, 'joe', 'gitau', 'joe@gmail.com', '123456')
-        response = login_user(self, 'joe@gmail.com', '123456')
-        data = json.loads(response.data.decode())
-
-        self.token = data['auth_token']
 
     def set_header(self):
         """set header e.g Authorization and Content type"""
@@ -64,4 +61,4 @@ class BaseTestCase(TestCase):
 
         db.session.remove()
         db.drop_all()
-        os.remove(os.path.join(basedir + '/test_bucket_list.db'))
+

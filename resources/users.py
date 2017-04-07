@@ -121,46 +121,6 @@ class LoginAPI(Resource):
             }
             return response, 500
 
-class UserAPI(Resource):
-    "gets the user status"
-
-    def get(self):
-        """
-        gets the status of the currently logged in user
-        """
-
-        # gets header
-        auth_header = request.headers.get('Authorization')
-
-        if auth_header:
-            auth_token = auth_header.split(" ")[1]
-        else:
-            auth_token = ''
-
-        # verify token
-        if auth_token:
-            user = Users.verify_auth_token(auth_token)
-
-            if user:
-                response = {
-                    'status': 'success',
-                    'data': {
-                        'first_name': user.first_name,
-                        'last_name': user.last_name,
-                    }
-                }
-                return response, 200
-            response = {
-                'status': 'fail',
-                'message': 'logged out'
-            }
-            return response, 401
-        response = {
-            'status': 'fail',
-            'message': 'please provide the token'
-            }
-        return response, 401
-
-api_auth.add_resource(UserAPI, '/auth/status', endpoint='user')
 api_auth.add_resource(RegisterAPI, '/auth/register', endpoint='register')
 api_auth.add_resource(LoginAPI, '/auth/login', endpoint='login')
+

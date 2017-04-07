@@ -9,12 +9,16 @@ from app import app, db
 
 auth = HTTPTokenAuth(scheme='Token')
 
+# field marshals for the bucketlist items
+
 bucket_list_item_field = {'bucketlist_item_id': fields.Integer,
                           'name': fields.String,
                           'created_at': fields.DateTime,
                           'updated_at': fields.DateTime(dt_format='rfc822'),
                           'done': fields.String
                          }
+
+# field marshals
 
 bucket_list_field = { 'id': fields.Integer,
                       'name': fields.String,
@@ -84,14 +88,14 @@ class BucketListAPI(Resource):
 
             # bucket list is found
             if not bucket_list:
-                return {'message': 'no bucket_list available'}, 200
+                return {'message': 'no bucket_list available'}, 404
 
-            if bucket_list.has_prev:
+            if bucket_list.has_next:
                 url_next = request.url + '?page='+ str(page + 1) + '&limit=' + str(per_page)
             else:
                 url_next = 'Null'
 
-            if bucket_list.has_next:
+            if bucket_list.has_prev:
                 url_prev = request.url + '?page='+ str(page - 1) + '&limit=' + str(per_page)
             else:
                 url_prev = 'Null'

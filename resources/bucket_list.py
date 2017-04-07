@@ -91,12 +91,12 @@ class BucketListAPI(Resource):
                 return {'message': 'no bucket_list available'}, 404
 
             if bucket_list.has_next:
-                url_next = request.url + '?page='+ str(page + 1) + '&limit=' + str(per_page)
+                url_next = request.url + '?page='+ str(page + 1) + '&per_page=' + str(per_page)
             else:
                 url_next = 'Null'
 
             if bucket_list.has_prev:
-                url_prev = request.url + '?page='+ str(page - 1) + '&limit=' + str(per_page)
+                url_prev = request.url + '?page='+ str(page - 1) + '&per_page=' + str(per_page)
             else:
                 url_prev = 'Null'
 

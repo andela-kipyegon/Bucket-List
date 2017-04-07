@@ -10,3 +10,5 @@ test:
    - python manage.py cov
  post:
    - coveralls
+
+   

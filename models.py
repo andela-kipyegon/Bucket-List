@@ -1,10 +1,6 @@
-import os
+
 import datetime
 from app import app, db
-
-from flask import Flask, g
-from flask_sqlalchemy import SQLAlchemy
-from flask_httpauth import HTTPTokenAuth
 
 from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import (TimedJSONWebSignatureSerializer

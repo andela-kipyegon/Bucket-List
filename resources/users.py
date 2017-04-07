@@ -1,5 +1,5 @@
 
-from flask import Flask, abort, Blueprint, request
+from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import reqparse, Resource, Api, inputs
 from app import db

@@ -240,7 +240,8 @@ class BucketListItemAPI(Resource):
         if not bucket_list:
             return {'message':'bucket list does not exist'}, 404
 
-        bucket_list_item = BucketListItem.query.filter_by(id=bucketlist_item_id).first()
+        bucket_list_item = BucketListItem.query.filter_by(bucketlist_id=bucketlist_id,\
+                                                    bucketlist_item_id=bucketlist_item_id).first()
 
         if not bucket_list_item:
             return {'message':'bucket list item does not exist'}, 404

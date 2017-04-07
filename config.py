@@ -9,8 +9,8 @@ class Config(object):
     CSRF_ENABLED = True
     URL_PREFIX = '/api'
     SECRET_KEY = os.environ['SECRET_KEY']
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',\
+                                'postgresql://localhost/bucket_list')
 
 class ProductionConfig(Config):
     """ Config class for prodxn"""
@@ -34,4 +34,3 @@ class TestingConfig(Config):
     """ Config for testing"""
 
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']

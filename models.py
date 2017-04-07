@@ -5,6 +5,7 @@ from app import app, db
 from flask import Flask, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPTokenAuth
+
 from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -20,7 +21,6 @@ class Users(db.Model):
     last_name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), nullable=True)
     password = db.Column(db.String(120), nullable=False)
-    bucketlists = db.relationship('BucketList', backref='users', lazy='dynamic')
 
     def __repr__(self):
         return '<name %s %s>' % (self.first_name, self.last_name)
@@ -67,7 +67,7 @@ class BucketList(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    items = db.relationship('BucketListItem', backref='bucketlist', passive_deletes=True)
+    items = db.relationship('BucketListItem', backref='bucketlist', cascade='all,delete', passive_deletes=True)
 
 class BucketListItem(db.Model):
     """ model for bucketlist item """

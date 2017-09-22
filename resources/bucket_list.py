@@ -2,7 +2,7 @@
 from datetime import datetime
 
 from flask import g, Blueprint, request
-from flask_restful import Api, Resource, reqparse, fields, marshal
+from flask_restful import Api, Resource, reqparse, fields, marshal, inputs
 from flask_httpauth import HTTPTokenAuth
 from models import BucketList, BucketListItem, Users
 from app import app, db
@@ -11,23 +11,25 @@ auth = HTTPTokenAuth(scheme='Token')
 
 # field marshals for the bucketlist items
 
-bucket_list_item_field = {'bucketlist_item_id': fields.Integer,
-                          'name': fields.String,
-                          'created_at': fields.DateTime,
-                          'updated_at': fields.DateTime(dt_format='rfc822'),
-                          'done': fields.String
-                         }
+bucket_list_item_field = {
+    'bucketlist_item_id': fields.Integer,
+    'name': fields.String,
+    'created_at': fields.DateTime,
+    'updated_at': fields.DateTime(dt_format='rfc822'),
+    'done': fields.Boolean
+}
 
 # field marshals
 
-bucket_list_field = { 'id': fields.Integer,
-                      'name': fields.String,
-                      'items': fields.Nested(bucket_list_item_field),
-                      'created_at': fields.DateTime(dt_format='rfc822'),
-                      'updated_at': fields.DateTime(dt_format='rfc822'),
-                      'created_by': fields.String,
-                      'uri':fields.Url('bucket_list.bucketlist'),
-                    }
+bucket_list_field = { 
+    'id': fields.Integer,
+    'name': fields.String,
+    'items': fields.Nested(bucket_list_item_field),
+    'created_at': fields.DateTime(dt_format='rfc822'),
+    'updated_at': fields.DateTime(dt_format='rfc822'),
+    'created_by': fields.String,
+    'uri':fields.Url('bucket_list.bucketlist'),
+}
 
 bucket_list_blueprint = Blueprint('bucket_list', __name__)
 api_bucket_list = Api(bucket_list_blueprint)
@@ -200,7 +202,8 @@ class BucketListItemAPI(Resource):
         updates a particular bucketlist item of  a particular id
         """
 
-        self.reqparse.add_argument('done', type=bool,
+        self.reqparse.add_argument('done', type=inputs.boolean,
+                                   default=False,
                                    help='No done argument provided',
                                    location='json')
         self.reqparse.add_argument('item_name', type=str,
@@ -225,7 +228,7 @@ class BucketListItemAPI(Resource):
         if name:
             bucket_list_item.name = name
 
-        if done:
+        if done in [True, False]:
             bucket_list_item.done = done
 
         db.session.commit()
